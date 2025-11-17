@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 import json
 import glob
+import csv
 
 # ===========================
 # PAGE SETTINGS
@@ -133,3 +134,28 @@ if run_button:
     plt.savefig(os.path.join("results", "convergence_all_runs.png"))
     st.subheader("📊 All Runs Convergence")
     st.pyplot(fig_all)
+
+
+    all_json_files = sorted(glob.glob("results/run_*/results.json"))
+
+    csv_file = os.path.join("results", "all_results.csv")
+    with open(csv_file, "w", newline='') as f:
+        writer = csv.writer(f)
+        # هدر
+        writer.writerow(["folder_name", "num_particles", "iterations", "w", "c1", "c2", "best_value"])
+
+        for json_file in all_json_files:
+            with open(json_file, "r") as jf:
+                data = json.load(jf)
+                folder_name = os.path.basename(os.path.dirname(json_file))
+                writer.writerow([
+                    folder_name,
+                    data["num_particles"],
+                    data["iterations"],
+                    data["w"],
+                    data["c1"],
+                    data["c2"],
+                    data["best_value"]
+                ])
+
+    print(f"✅ All JSON results merged into {csv_file}")
